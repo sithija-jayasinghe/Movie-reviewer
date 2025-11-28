@@ -52,12 +52,133 @@ async function fetchMovieDetails(imdbID) {
         return null;
     }
 }
+const API_KEY = '3137e2ba';
+const BASE_URL = 'http://www.omdbapi.com/';
+
+// State to manage application data
+const appState = {
+    newReleases: [],
+    trending: [],
+    upcoming: []
+};
+
+/**
+ * Fetch movies from OMDB API
+ * @param {string} query - Search query (e.g., 'Marvel', '2024')
+ * @param {string} type - Type of content ('movie', 'series', 'episode')
+ * @returns {Promise<Array>} - Array of movie objects
+ */
+async function fetchMovies(query, type = 'movie') {
+    try {
+        const response = await fetch(`${BASE_URL}?apikey=${API_KEY}&s=${query}&type=${type}`);
+        const data = await response.json();
+
+        if (data.Response === "True") {
+            return data.Search;
+        } else {
+            console.error(`Error fetching movies for query "${query}":`, data.Error);
+            return [];
+        }
+    } catch (error) {
+        console.error("Network error:", error);
+        return [];
+    }
+}
+
+/**
+ * Fetch detailed movie information by ID
+ * @param {string} imdbID 
+ * @returns {Promise<Object>}
+ */
+async function fetchMovieDetails(imdbID) {
+    try {
+        const response = await fetch(`${BASE_URL}?apikey=${API_KEY}&i=${imdbID}&plot=full`);
+        const data = await response.json();
+
+        if (data.Response === "True") {
+            return data;
+        } else {
+            console.error("Error fetching details:", data.Error);
+            return null;
+        }
+    } catch (error) {
+        console.error("Network error:", error);
+        return null;
+    }
+}
 
 // Test the API connection
 // fetchMovies('Avengers').then(movies => {
 //     console.log("Test Fetch (Avengers):", movies);
 // });
 
+/**
+ * Initialize the application
+ */
+async function initApp() {
+    console.log("Initializing App...");
+
+    // Fetch data for different sections
+    // Using specific queries to simulate categories since OMDB is limited
+
+    // New Releases -> "2024"
+    const newReleases = await fetchMovies('2024');
+    renderMovies(newReleases, 'new-releases');
+
+    // Trending -> "Marvel"
+    const trending = await fetchMovies('Marvel');
+    renderMovies(trending, 'trending-movies');
+
+    // Upcoming -> "2025"
+    const upcoming = await fetchMovies('2025');
+    renderMovies(upcoming, 'upcoming-releases');
+}
+
+// Start the app when DOM is loaded
+document.addEventListener('DOMContentLoaded', initApp);
+
+// Modal Elements
+const modal = document.getElementById("movie-modal");
+const closeModal = document.querySelector(".close-modal");
+
+// Close modal when clicking on 'x'
+if (closeModal) {
+    closeModal.onclick = function () {
+        modal.style.display = "none";
+    }
+}
+
+// Close modal when clicking outside
+window.onclick = function (event) {
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+}
+
+/**
+ * Open Modal with Movie Details
+ * @param {string} imdbID 
+ */
+async function openModal(imdbID) {
+    const movie = await fetchMovieDetails(imdbID);
+    if (!movie) return;
+
+    document.getElementById('modal-title').innerText = movie.Title;
+    document.getElementById('modal-year').innerText = movie.Year;
+    document.getElementById('modal-rated').innerText = movie.Rated;
+    document.getElementById('modal-runtime').innerText = movie.Runtime;
+    document.getElementById('modal-score').innerText = movie.imdbRating;
+    document.getElementById('modal-plot').innerText = movie.Plot;
+    document.getElementById('modal-actors').innerText = movie.Actors;
+    document.getElementById('modal-director').innerText = movie.Director;
+
+    const poster = movie.Poster !== "N/A" ? movie.Poster : 'https://via.placeholder.com/300x450?text=No+Poster';
+    document.getElementById('modal-img').src = poster;
+
+    modal.style.display = "block";
+}
+
+// Update renderMovies to call openModal
 /**
  * Render movies to the DOM
  * @param {Array} movies - Array of movie objects
@@ -89,37 +210,11 @@ function renderMovies(movies, containerId) {
             </div>
         `;
 
-        // Add click event to view details (future implementation)
+        // Add click event to view details
         movieCard.addEventListener('click', () => {
-            console.log(`Clicked on ${movie.Title} (${movie.imdbID})`);
-            // TODO: Open details view
+            openModal(movie.imdbID);
         });
 
         container.appendChild(movieCard);
     });
 }
-
-/**
- * Initialize the application
- */
-async function initApp() {
-    console.log("Initializing App...");
-
-    // Fetch data for different sections
-    // Using specific queries to simulate categories since OMDB is limited
-
-    // New Releases -> "2024"
-    const newReleases = await fetchMovies('2024');
-    renderMovies(newReleases, 'new-releases');
-
-    // Trending -> "Marvel"
-    const trending = await fetchMovies('Marvel');
-    renderMovies(trending, 'trending-movies');
-
-    // Upcoming -> "2025"
-    const upcoming = await fetchMovies('2025');
-    renderMovies(upcoming, 'upcoming-releases');
-}
-
-// Start the app when DOM is loaded
-document.addEventListener('DOMContentLoaded', initApp);
