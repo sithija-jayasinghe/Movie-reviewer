@@ -58,27 +58,176 @@
                     </div>
                 </div>
                 <div class="hero-image">
-                    <!-- Placeholder for hero image, using a gradient or a real image if available -->
-                    <img src="https://m.media-amazon.com/images/M/MV5BMjE4NzY1MTEyM15BMl5BanBnXkFtZTgwMTI3MDM5MTE@._V1_SX300.jpg"
-                        alt="Wicked Movie Banner" class="hero-banner">
-                </div>
-            </section>
+                    <!DOCTYPE html>
+                    <html lang="en">
 
-            <!-- Genre Pills -->
-            <section class="genres">
-                <div class="genre-pill active">Action</div>
-                <div class="genre-pill">Adventure</div>
-                <div class="genre-pill">Animation</div>
-                <div class="genre-pill">Comedy</div>
-                <div class="genre-pill">Crime</div>
-                <div class="genre-pill">Documentary</div>
-                <div class="genre-pill">Drama</div>
-                <div class="genre-pill">Family</div>
-                <div class="genre-pill">Fantasy</div>
-            </section>
-        </main>
-    </div>
-    <script src="script.js"></script>
-</body>
+                    <head>
+                        <meta charset="UTF-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        <title>SITME - Movie Reviews</title>
+                        <link rel="stylesheet" href="styles.css">
+                        <link rel="preconnect" href="https://fonts.googleapis.com">
+                        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+                        <!DOCTYPE html>
+                        <html lang="en">
 
-</html>
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                            <title>SITME - Movie Reviews</title>
+                            <link rel="stylesheet" href="styles.css">
+                            <link rel="preconnect" href="https://fonts.googleapis.com">
+                            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+                            <link
+                                href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+                                rel="stylesheet">
+                            <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+                            <!-- Placeholder for icons -->
+                        </head>
+
+                    <body>
+                        <div id="app">
+                            <header>
+                                <nav class="navbar">
+                                    <div class="logo">SITME</div>
+                                    <ul class="nav-links">
+                                        <li><a href="#" class="active">Home</a></li>
+                                        <li><a href="#">Movies</a></li>
+                                        <li><a href="#">TV Shows</a></li>
+                                        <li><a href="#">News</a></li>
+                                    </ul>
+                                    <div class="search-bar">
+                                        <input type="text" placeholder="Search for movies...">
+                                        <i class="fas fa-search"></i>
+                                    </div>
+                                    <button class="btn-signin">Sign In</button>
+                                </nav>
+                            </header>
+
+                            <main>
+                                <section class="hero">
+                                    <div class="hero-content">
+                                        <div class="hero-tag">#1 in Movies</div>
+                                        <h1 class="hero-title">Wicked</h1>
+                                        <p class="hero-description">
+                                            Elphaba, a misunderstood young woman because of her green skin, and Glinda,
+                                            a popular girl,
+                                            become friends at Shiz University in the Land of Oz.
+                                        </p>
+                                        <div class="hero-buttons">
+                                            <button class="btn-primary"><i class="fas fa-play"></i> Watch
+                                                Trailer</button>
+                                            <button class="btn-secondary"><i class="fas fa-plus"></i> Add to
+                                                Watchlist</button>
+                                        </div>
+                                    </div>
+                                    <div class="hero-image">
+                                        <!-- Placeholder for hero image, using a gradient or a real image if available -->
+                                        <img src="https://m.media-amazon.com/images/M/MV5BMjE4NzY1MTEyM15BMl5BanBnXkFtZTgwMTI3MDM5MTE@._V1_SX300.jpg"
+                                            alt="Wicked Movie Banner" class="hero-banner">
+                                    </div>
+                                </section>
+
+                                <!-- Genre Pills -->
+                                <section class="genres">
+                                    <div class="genre-pill active">Action</div>
+                                    <div class="genre-pill">Adventure</div>
+                                    <div class="genre-pill">Animation</div>
+                                    <div class="genre-pill">Comedy</div>
+                                    <div class="genre-pill">Crime</div>
+                                    <div class="genre-pill">Documentary</div>
+                                    <div class="genre-pill">Drama</div>
+                                    <div class="genre-pill">Family</div>
+                                    <div class="genre-pill">Fantasy</div>
+                                </section>
+
+                                <!-- Movie Sections -->
+                                <div class="content-container">
+                                    <!-- New Releases -->
+                                    <section class="movie-section">
+                                        <div class="section-header">
+                                            <h2>New Releases</h2>
+                                            <a href="#" class="see-all">See All</a>
+                                        </div>
+                                        <div class="movie-list" id="new-releases">
+                                            <!-- Placeholders -->
+                                            <div class="movie-card">
+                                                <img src="https://m.media-amazon.com/images/M/MV5BMjE4NzY1MTEyM15BMl5BanBnXkFtZTgwMTI3MDM5MTE@._V1_SX300.jpg"
+                                                    alt="Wicked">
+                                                <div class="movie-info">
+                                                    <h3>Wicked</h3>
+                                                    <div class="rating">
+                                                        <span class="score"><i class="fas fa-star"></i> 7.8</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="movie-card">
+                                                <img src="https://m.media-amazon.com/images/M/MV5BMjE4NzY1MTEyM15BMl5BanBnXkFtZTgwMTI3MDM5MTE@._V1_SX300.jpg"
+                                                    alt="Wicked">
+                                                <div class="movie-info">
+                                                    <h3>Wicked</h3>
+                                                    <div class="rating">
+                                                        <span class="score"><i class="fas fa-star"></i> 7.8</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="movie-card">
+                                                <img src="https://m.media-amazon.com/images/M/MV5BMjE4NzY1MTEyM15BMl5BanBnXkFtZTgwMTI3MDM5MTE@._V1_SX300.jpg"
+                                                    alt="Wicked">
+                                                <div class="movie-info">
+                                                    <h3>Wicked</h3>
+                                                    <div class="rating">
+                                                        <span class="score"><i class="fas fa-star"></i> 7.8</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="movie-card">
+                                                <img src="https://m.media-amazon.com/images/M/MV5BMjE4NzY1MTEyM15BMl5BanBnXkFtZTgwMTI3MDM5MTE@._V1_SX300.jpg"
+                                                    alt="Wicked">
+                                                <div class="movie-info">
+                                                    <h3>Wicked</h3>
+                                                    <div class="rating">
+                                                        <span class="score"><i class="fas fa-star"></i> 7.8</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="movie-card">
+                                                <img src="https://m.media-amazon.com/images/M/MV5BMjE4NzY1MTEyM15BMl5BanBnXkFtZTgwMTI3MDM5MTE@._V1_SX300.jpg"
+                                                    alt="Wicked">
+                                                <div class="movie-info">
+                                                    <h3>Wicked</h3>
+                                                    <div class="rating">
+                                                        <span class="score"><i class="fas fa-star"></i> 7.8</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </section>
+
+                                    <!-- Trending Movies -->
+                                    <section class="movie-section">
+                                        <div class="section-header">
+                                            <h2>Trending Movies This Week</h2>
+                                            <a href="#" class="see-all">See All</a>
+                                        </div>
+                                        <div class="movie-list" id="trending-movies">
+                                            <!-- Placeholders will be populated by JS later, keeping empty for now or duplicating above if needed for visual check -->
+                                        </div>
+                                    </section>
+
+                                    <!-- Upcoming Releases -->
+                                    <section class="movie-section">
+                                        <div class="section-header">
+                                            <h2>Upcoming Releases</h2>
+                                            <a href="#" class="see-all">See All</a>
+                                        </div>
+                                        <div class="movie-list" id="upcoming-releases">
+                                        </div>
+                                    </section>
+                                </div>
+                            </main>
+                        </div>
+                        <script src="script.js"></script>
+                    </body>
+
+                    </html>

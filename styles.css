@@ -205,3 +205,109 @@ header {
     color: #000;
     border-color: var(--accent-color);
 }
+
+/* Movie Sections */
+.content-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.movie-section {
+    margin-bottom: 3rem;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid #333;
+    padding-bottom: 0.5rem;
+}
+
+.section-header h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.see-all {
+    color: #aaa;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.see-all:hover {
+    color: var(--accent-color);
+}
+
+.movie-list {
+    display: flex;
+    gap: 1.5rem;
+    overflow-x: auto;
+    padding-bottom: 1rem;
+    scroll-behavior: smooth;
+}
+
+.movie-list::-webkit-scrollbar {
+    height: 8px;
+}
+
+.movie-list::-webkit-scrollbar-track {
+    background: #1e1e24;
+    border-radius: 4px;
+}
+
+.movie-list::-webkit-scrollbar-thumb {
+    background: #555;
+    border-radius: 4px;
+}
+
+.movie-list::-webkit-scrollbar-thumb:hover {
+    background: #777;
+}
+
+.movie-card {
+    min-width: 180px;
+    width: 180px;
+    background-color: var(--secondary-bg);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.3s;
+    cursor: pointer;
+}
+
+.movie-card:hover {
+    transform: translateY(-5px);
+}
+
+.movie-card img {
+    width: 100%;
+    height: 270px;
+    object-fit: cover;
+}
+
+.movie-info {
+    padding: 0.8rem;
+}
+
+.movie-info h3 {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.rating {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: #aaa;
+}
+
+.score i {
+    color: #ffd700;
+    margin-right: 4px;
+}
