@@ -54,6 +54,72 @@ async function fetchMovieDetails(imdbID) {
 }
 
 // Test the API connection
-fetchMovies('Avengers').then(movies => {
-    console.log("Test Fetch (Avengers):", movies);
-});
+// fetchMovies('Avengers').then(movies => {
+//     console.log("Test Fetch (Avengers):", movies);
+// });
+
+/**
+ * Render movies to the DOM
+ * @param {Array} movies - Array of movie objects
+ * @param {string} containerId - ID of the container element
+ */
+function renderMovies(movies, containerId) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = ''; // Clear existing content
+
+    if (!movies || movies.length === 0) {
+        container.innerHTML = '<p>No movies found.</p>';
+        return;
+    }
+
+    movies.forEach(movie => {
+        const movieCard = document.createElement('div');
+        movieCard.classList.add('movie-card');
+
+        // Handle missing posters
+        const poster = movie.Poster !== "N/A" ? movie.Poster : 'https://via.placeholder.com/300x450?text=No+Poster';
+
+        movieCard.innerHTML = `
+            <img src="${poster}" alt="${movie.Title}">
+            <div class="movie-info">
+                <h3>${movie.Title}</h3>
+                <div class="rating">
+                    <span class="score"><i class="fas fa-star"></i> ${movie.Year}</span>
+                </div>
+            </div>
+        `;
+
+        // Add click event to view details (future implementation)
+        movieCard.addEventListener('click', () => {
+            console.log(`Clicked on ${movie.Title} (${movie.imdbID})`);
+            // TODO: Open details view
+        });
+
+        container.appendChild(movieCard);
+    });
+}
+
+/**
+ * Initialize the application
+ */
+async function initApp() {
+    console.log("Initializing App...");
+
+    // Fetch data for different sections
+    // Using specific queries to simulate categories since OMDB is limited
+
+    // New Releases -> "2024"
+    const newReleases = await fetchMovies('2024');
+    renderMovies(newReleases, 'new-releases');
+
+    // Trending -> "Marvel"
+    const trending = await fetchMovies('Marvel');
+    renderMovies(trending, 'trending-movies');
+
+    // Upcoming -> "2025"
+    const upcoming = await fetchMovies('2025');
+    renderMovies(upcoming, 'upcoming-releases');
+}
+
+// Start the app when DOM is loaded
+document.addEventListener('DOMContentLoaded', initApp);
