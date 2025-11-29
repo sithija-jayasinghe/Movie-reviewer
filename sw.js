@@ -1,4 +1,4 @@
-const CACHE_NAME = 'movora-v1';
+const CACHE_NAME = 'movora-v2';
 const ASSETS = [
   './',
   './index.html',
