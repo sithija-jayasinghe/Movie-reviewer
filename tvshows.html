@@ -4,20 +4,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Movora - Movie Reviews</title>
+    <title>SITME - TV Shows</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Use Font Awesome CSS from CDN to avoid kit CORS issues -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </head>
 
 <body>
-    <div id="app" class="page-home">
+    <div id="app" class="page-tvshows">
         <header>
             <nav class="navbar">
-                <div class="logo">Movora</div>
+                <div class="logo">SITME</div>
                 <ul class="nav-links">
                     <li><a href="index.html" class="active">Home</a></li>
                     <li><a href="movies.html">Movies</a></li>
@@ -32,23 +31,6 @@
         </header>
 
         <main>
-            <section class="hero">
-                <div class="hero-content">
-                    <div class="hero-tag">Featured Movie</div>
-                    <h1 class="hero-title" id="hero-title">Loading...</h1>
-                    <p class="hero-description" id="hero-description">
-                        Loading featured movie...
-                    </p>
-                    <div class="hero-buttons">
-                        <button class="btn-primary" id="hero-watch-btn"><i class="fas fa-play"></i> See details</button>
-                    </div>
-                </div>
-                <div class="hero-image">
-                    <img src="https://via.placeholder.com/500x750?text=Loading..."
-                        alt="Movie Banner" class="hero-banner" id="hero-image">
-                </div>
-            </section>
-
             <section class="genres">
                 <div class="genre-pill active" data-genre="Action">Action</div>
                 <div class="genre-pill" data-genre="Adventure">Adventure</div>
@@ -64,30 +46,9 @@
             <div class="content-container">
                 <section class="movie-section">
                     <div class="section-header">
-                        <h2>New Releases</h2>
-                        <a href="movies.html" class="see-all">See All</a>
+                        <h2>Explore TV Shows</h2>
                     </div>
-                    <div class="movie-list" id="new-releases">
-                        <!-- Content populated by JS -->
-                    </div>
-                </section>
-
-                <section class="movie-section">
-                    <div class="section-header">
-                        <h2>Trending Movies This Week</h2>
-                        <a href="movies.html" class="see-all">See All</a>
-                    </div>
-                    <div class="movie-list" id="trending-movies">
-                        <!-- Content populated by JS -->
-                    </div>
-                </section>
-
-                <section class="movie-section">
-                    <div class="section-header">
-                        <h2>Upcoming Releases</h2>
-                        <a href="movies.html" class="see-all">See All</a>
-                    </div>
-                    <div class="movie-list" id="upcoming-releases">
+                    <div class="movie-list-grid" id="tvshows-grid">
                         <!-- Content populated by JS -->
                     </div>
                 </section>
@@ -96,13 +57,21 @@
 
         <footer>
             <div class="footer-content">
+                <div class="footer-links">
+                    <a href="#">About</a>
+                    <a href="#">Help</a>
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Use</a>
+                    <a href="#">Cookies Settings</a>
+                    <a href="#">Accessibility</a>
+                </div>
                 <div class="social-icons">
                     <i class="fab fa-facebook"></i>
                     <i class="fab fa-twitter"></i>
                     <i class="fab fa-instagram"></i>
                     <i class="fab fa-youtube"></i>
                 </div>
-                <p class="copyright">&copy; 2024 Movora. All rights reserved.</p>
+                <p class="copyright">&copy; 2024 SITME. All rights reserved.</p>
             </div>
         </footer>
     </div>
