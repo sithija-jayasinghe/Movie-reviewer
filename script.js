@@ -1,5 +1,5 @@
 const API_KEY = '3137e2ba';
-const BASE_URL = 'http://www.omdbapi.com/';
+const BASE_URL = 'https://www.omdbapi.com/';
 
 // State to manage application data
 const appState = {
