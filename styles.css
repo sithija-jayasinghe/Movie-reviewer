@@ -718,22 +718,6 @@ footer {
     gap: 2rem;
 }
 
-.social-icons {
-    display: flex;
-    gap: 2rem;
-}
-
-.social-icons i {
-    font-size: 1.5rem;
-    color: var(--text-muted);
-    cursor: pointer;
-    transition: all 0.3s;
-}
-
-.social-icons i:hover {
-    color: var(--accent-color);
-    transform: translateY(-3px);
-}
 
 .copyright {
     color: rgba(255, 255, 255, 0.3);

@@ -461,13 +461,13 @@ async function initHomePage() {
 
 async function initMoviesPage() {
     renderSkeletons('movies-grid', 10);
-    setupSortListener('movies-grid'); // Setup Sort
+    setupSortListener('movies-grid');
 
     const movies = await fetchMovies('2024', 'movie');
-    appState.currentResults = movies; // Store state
+    appState.currentResults = movies; 
     renderMovies(movies, 'movies-grid');
     setupLoadMore('movies-grid', true);
-    appState.currentSearch = '2024'; // Default for load more
+    appState.currentSearch = '2024';
 
     const genres = document.querySelectorAll('.genre-pill');
     genres.forEach(pill => {
@@ -481,7 +481,7 @@ async function initMoviesPage() {
             renderSkeletons('movies-grid', 10);
             
             const results = await fetchMovies(genre, 'movie');
-            appState.currentResults = results; // Store state
+            appState.currentResults = results;
             
             // Reset sort to default when changing genre? Or keep it? Let's keep it.
             const sortSelect = document.getElementById('sort-select');
@@ -496,10 +496,10 @@ async function initMoviesPage() {
 
 async function initTVShowsPage() {
     renderSkeletons('tvshows-grid', 10);
-    setupSortListener('tvshows-grid'); // Setup Sort
+    setupSortListener('tvshows-grid');
 
     const shows = await fetchMovies('2024', 'series');
-    appState.currentResults = shows; // Store state
+    appState.currentResults = shows; 
     renderMovies(shows, 'tvshows-grid');
     setupLoadMore('tvshows-grid', true);
     appState.currentSearch = '2024';
@@ -516,7 +516,7 @@ async function initTVShowsPage() {
             renderSkeletons('tvshows-grid', 10);
             
             const results = await fetchMovies(genre, 'series');
-            appState.currentResults = results; // Store state
+            appState.currentResults = results; 
 
             const sortSelect = document.getElementById('sort-select');
             const criteria = sortSelect ? sortSelect.value : 'default';
