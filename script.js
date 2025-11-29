@@ -6,79 +6,162 @@ const appState = {
     newReleases: [],
     trending: [],
     upcoming: [],
-    bestOn: []
+    watchlist: JSON.parse(localStorage.getItem('movora_watchlist')) || [],
+    currentPage: 1,
+    currentSearch: '',
+    currentType: 'movie'
 };
+
+// --- UTILS ---
+
+/**
+ * Show Toast Notification
+ * @param {string} message 
+ * @param {string} type - 'success' or 'error'
+ */
+function showToast(message, type = 'success') {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+
+    const toast = document.createElement('div');
+    toast.classList.add('toast');
+    if (type === 'error') toast.classList.add('error');
+
+    const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+    
+    toast.innerHTML = `
+        <i class="fas ${icon}"></i>
+        <span>${message}</span>
+    `;
+
+    container.appendChild(toast);
+
+    // Remove after 3 seconds
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(100%)';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+/**
+ * Toggle Watchlist
+ * @param {Object} movie 
+ */
+function toggleWatchlist(movie) {
+    const index = appState.watchlist.findIndex(m => m.imdbID === movie.imdbID);
+    
+    if (index === -1) {
+        appState.watchlist.push(movie);
+        showToast(`Added "${movie.Title}" to Watchlist`);
+    } else {
+        appState.watchlist.splice(index, 1);
+        showToast(`Removed "${movie.Title}" from Watchlist`, 'error'); // Using error style for remove
+    }
+    
+    localStorage.setItem('movora_watchlist', JSON.stringify(appState.watchlist));
+    updateWatchlistUI();
+}
+
+function updateWatchlistUI() {
+    // Update buttons in modal if open
+    const modalBtn = document.getElementById('modal-watchlist-btn');
+    if (modalBtn) {
+        const imdbID = modalBtn.dataset.imdbID;
+        const inList = appState.watchlist.some(m => m.imdbID === imdbID);
+        updateWatchlistButtonState(modalBtn, inList);
+    }
+    
+    // If we are on a watchlist page (future feature), re-render
+}
+
+function updateWatchlistButtonState(btn, inList) {
+    if (inList) {
+        btn.innerHTML = '<i class="fas fa-check"></i> In Watchlist';
+        btn.style.backgroundColor = 'var(--accent-color)';
+        btn.style.color = '#000';
+    } else {
+        btn.innerHTML = '<i class="fas fa-plus"></i> Add to Watchlist';
+        btn.style.backgroundColor = 'transparent';
+        btn.style.color = 'var(--accent-color)';
+    }
+}
+
+// --- API ---
 
 /**
  * Fetch movies from OMDB API
- * @param {string} query - Search query (e.g., 'Marvel', '2024')
- * @param {string} type - Type of content ('movie', 'series', 'episode')
- * @returns {Promise<Array>} - Array of movie objects
  */
-async function fetchMovies(query, type = 'movie') {
+async function fetchMovies(query, type = 'movie', page = 1) {
     try {
-        const response = await fetch(`${BASE_URL}?apikey=${API_KEY}&s=${query}&type=${type}`);
+        const response = await fetch(`${BASE_URL}?apikey=${API_KEY}&s=${query}&type=${type}&page=${page}`);
         const data = await response.json();
 
         if (data.Response === "True") {
             return data.Search;
         } else {
-            console.error(`Error fetching movies for query "${query}":`, data.Error);
+            if (page === 1) console.error(`Error fetching movies:`, data.Error);
             return [];
         }
     } catch (error) {
         console.error("Network error:", error);
+        showToast("Network error. Please check your connection.", "error");
         return [];
     }
 }
 
-/**
- * Fetch detailed movie information by ID
- * @param {string} imdbID 
- * @returns {Promise<Object>}
- */
 async function fetchMovieDetails(imdbID) {
     try {
         const response = await fetch(`${BASE_URL}?apikey=${API_KEY}&i=${imdbID}&plot=full`);
         const data = await response.json();
-
-        if (data.Response === "True") {
-            return data;
-        } else {
-            console.error("Error fetching details:", data.Error);
-            return null;
-        }
+        return data.Response === "True" ? data : null;
     } catch (error) {
-        console.error("Network error:", error);
         return null;
+    }
+}
+
+// --- RENDERING ---
+
+/**
+ * Render Skeleton Loaders
+ */
+function renderSkeletons(containerId, count = 5) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    
+    container.innerHTML = '';
+    for (let i = 0; i < count; i++) {
+        const skeleton = document.createElement('div');
+        skeleton.classList.add('skeleton', 'skeleton-card');
+        container.appendChild(skeleton);
     }
 }
 
 /**
  * Render movies to the DOM
- * @param {Array} movies - Array of movie objects
- * @param {string} containerId - ID of the container element
  */
-function renderMovies(movies, containerId) {
+function renderMovies(movies, containerId, append = false) {
     const container = document.getElementById(containerId);
     if (!container) return;
 
-    container.innerHTML = ''; // Clear existing content
+    if (!append) container.innerHTML = '';
 
     if (!movies || movies.length === 0) {
-        container.innerHTML = '<p>No movies found.</p>';
+        if (!append) container.innerHTML = '<p style="color: #aaa; text-align: center; width: 100%;">No movies found.</p>';
         return;
     }
 
-    movies.forEach(movie => {
+    movies.forEach((movie, index) => {
         const movieCard = document.createElement('div');
         movieCard.classList.add('movie-card');
+        
+        // Staggered Animation Delay
+        movieCard.style.animationDelay = `${index * 0.1}s`;
 
-        // Ensure we have a poster URL, fallback to placeholder when missing
-        const poster = (movie && movie.Poster && movie.Poster !== 'N/A') ? movie.Poster : 'https://via.placeholder.com/300x450?text=No+Image';
+        const poster = (movie.Poster && movie.Poster !== 'N/A') ? movie.Poster : 'https://via.placeholder.com/300x450?text=No+Image';
 
         movieCard.innerHTML = `
-            <img src="${poster}" alt="${movie.Title}" onerror="this.src='https://via.placeholder.com/300x450?text=Image+Not+Found'">
+            <img src="${poster}" alt="${movie.Title}" loading="lazy" onerror="this.src='https://via.placeholder.com/300x450?text=Image+Not+Found'">
             <div class="movie-info">
                 <h3>${movie.Title}</h3>
                 <div class="rating">
@@ -87,42 +170,37 @@ function renderMovies(movies, containerId) {
             </div>
         `;
 
-        // Add click event to view details
-        movieCard.addEventListener('click', () => {
-            openModal(movie.imdbID);
-        });
-
+        movieCard.addEventListener('click', () => openModal(movie.imdbID));
         container.appendChild(movieCard);
     });
 }
 
-// Modal Elements
+// --- MODAL ---
+
 const modal = document.getElementById("movie-modal");
 const closeModal = document.querySelector(".close-modal");
 
-// Close modal when clicking on 'x'
 if (closeModal) {
-    closeModal.onclick = function () {
+    closeModal.onclick = () => {
         modal.style.display = "none";
         document.body.classList.remove('modal-open');
     }
 }
 
-// Close modal when clicking outside
-window.onclick = function (event) {
+window.onclick = (event) => {
     if (event.target == modal) {
         modal.style.display = "none";
         document.body.classList.remove('modal-open');
     }
 }
 
-/**
- * Open Modal with Movie Details
- * @param {string} imdbID 
- */
 async function openModal(imdbID) {
+    // Show loading state in modal if needed, or just wait
     const movie = await fetchMovieDetails(imdbID);
-    if (!movie) return;
+    if (!movie) {
+        showToast("Could not load movie details", "error");
+        return;
+    }
 
     document.getElementById('modal-title').innerText = movie.Title;
     document.getElementById('modal-year').innerText = movie.Year;
@@ -136,77 +214,123 @@ async function openModal(imdbID) {
 
     let poster = movie.Poster !== "N/A" ? movie.Poster : 'https://via.placeholder.com/300x450?text=No+Poster';
     document.getElementById('modal-img').src = poster;
-    document.getElementById('modal-img').onerror = function() {
-        this.src = 'https://via.placeholder.com/300x450?text=Image+Not+Found';
-    };
+
+    // Watchlist Button Logic
+    let watchlistBtn = document.getElementById('modal-watchlist-btn');
+    if (!watchlistBtn) {
+        // Create button if it doesn't exist (it wasn't in original HTML)
+        watchlistBtn = document.createElement('button');
+        watchlistBtn.id = 'modal-watchlist-btn';
+        watchlistBtn.classList.add('btn-watchlist-modal');
+        // Insert after rating
+        const ratingEl = document.querySelector('.modal-rating');
+        if (ratingEl) ratingEl.after(watchlistBtn);
+    }
+
+    watchlistBtn.dataset.imdbID = movie.imdbID;
+    watchlistBtn.onclick = () => toggleWatchlist(movie);
+    
+    const inList = appState.watchlist.some(m => m.imdbID === movie.imdbID);
+    updateWatchlistButtonState(watchlistBtn, inList);
 
     modal.style.display = "block";
     document.body.classList.add('modal-open');
 }
 
-/**
- * Handle Search
- */
+// --- SEARCH & DISCOVER ---
+
 async function handleSearch(query) {
     if (!query) return;
-
-    const results = await fetchMovies(query);
     
-    // Determine where to show results based on current page
-    let targetContainerId = 'new-releases'; // Default for home
+    appState.currentSearch = query;
+    appState.currentPage = 1;
+
+    // Determine container
+    let targetContainerId = 'new-releases';
     if (document.querySelector('.page-movies')) targetContainerId = 'movies-grid';
     if (document.querySelector('.page-tvshows')) targetContainerId = 'tvshows-grid';
 
+    // Show Skeletons
+    renderSkeletons(targetContainerId, 8);
+
+    const results = await fetchMovies(query, appState.currentType);
+    
     const container = document.getElementById(targetContainerId);
     if (container) {
-        // Update title if possible
         const sectionHeader = container.parentElement.querySelector('h2');
-        if (sectionHeader) sectionHeader.innerText = `Search Results: "${query}"`;
+        if (sectionHeader) sectionHeader.innerText = `Results for: "${query}"`;
         
         renderMovies(results, targetContainerId);
         
-        // Hide other sections on home page if searching (guard for missing sections)
-        if (document.querySelector('.page-home')) {
-            const trendingEl = document.getElementById('trending-movies');
-            const upcomingEl = document.getElementById('upcoming-releases');
-            const bestEl = document.getElementById('best-movies');
+        // Setup Load More
+        setupLoadMore(targetContainerId, results.length > 0);
 
-            if (trendingEl && trendingEl.parentElement) trendingEl.parentElement.style.display = 'none';
-            if (upcomingEl && upcomingEl.parentElement) upcomingEl.parentElement.style.display = 'none';
-            if (bestEl && bestEl.parentElement) bestEl.parentElement.style.display = 'none';
+        // Hide other sections on home
+        if (document.querySelector('.page-home')) {
+            ['trending-movies', 'upcoming-releases'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el && el.parentElement) el.parentElement.style.display = 'none';
+            });
         }
     }
 }
 
-/**
- * Discover a Random Movie
- */
+function setupLoadMore(containerId, hasResults) {
+    // Remove existing load more button
+    const existingBtn = document.querySelector('.load-more-container');
+    if (existingBtn) existingBtn.remove();
+
+    if (!hasResults) return;
+
+    const container = document.getElementById(containerId);
+    const btnContainer = document.createElement('div');
+    btnContainer.classList.add('load-more-container');
+    
+    const btn = document.createElement('button');
+    btn.classList.add('btn-load-more');
+    btn.innerText = 'Load More';
+    
+    btn.onclick = async () => {
+        btn.innerText = 'Loading...';
+        appState.currentPage++;
+        const query = appState.currentSearch || (document.querySelector('.page-tvshows') ? 'series' : '2024');
+        const type = document.querySelector('.page-tvshows') ? 'series' : 'movie';
+        
+        const moreMovies = await fetchMovies(query, type, appState.currentPage);
+        if (moreMovies && moreMovies.length > 0) {
+            renderMovies(moreMovies, containerId, true);
+            btn.innerText = 'Load More';
+        } else {
+            btn.innerText = 'No more results';
+            btn.disabled = true;
+        }
+    };
+
+    btnContainer.appendChild(btn);
+    container.parentElement.appendChild(btnContainer);
+}
+
 async function discoverRandomMovie() {
-    const keywords = ['Inception', 'Matrix', 'Interstellar', 'Titanic', 'Avatar', 'Gladiator', 'Joker', 'Avengers', 'Batman', 'Spiderman', 'Godfather', 'Pulp Fiction', 'Fight Club', 'Forrest Gump', 'Star Wars', 'Lord of the Rings', 'Harry Potter', 'Jurassic Park', 'Lion King', 'Frozen'];
+    const keywords = ['Inception', 'Matrix', 'Interstellar', 'Titanic', 'Avatar', 'Gladiator', 'Joker', 'Avengers', 'Batman', 'Spiderman'];
     const randomKeyword = keywords[Math.floor(Math.random() * keywords.length)];
     
-    // Fetch movies for the random keyword
-    const movies = await fetchMovies(randomKeyword);
+    showToast("Discovering a movie for you...");
     
+    const movies = await fetchMovies(randomKeyword);
     if (movies && movies.length > 0) {
-        // Pick a random movie from the results
         const randomMovie = movies[Math.floor(Math.random() * movies.length)];
         openModal(randomMovie.imdbID);
-    } else {
-        alert('Could not find a random movie. Please try again.');
     }
 }
 
-/**
- * Update Hero Section with a Random Movie
- */
+// --- HERO & INIT ---
+
 async function updateHeroSection() {
-    const heroMovies = ['Avatar', 'Interstellar', 'Dune', 'The Batman', 'Oppenheimer', 'Inception', 'Avengers: Endgame', 'Joker', 'Gladiator', 'Titanic'];
+    const heroMovies = ['Avatar', 'Interstellar', 'Dune', 'The Batman', 'Oppenheimer', 'Inception'];
     const randomTitle = heroMovies[Math.floor(Math.random() * heroMovies.length)];
     
     const movies = await fetchMovies(randomTitle);
     if (movies && movies.length > 0) {
-        // Get the first exact match or just the first result
         const movie = movies[0];
         const details = await fetchMovieDetails(movie.imdbID);
         
@@ -214,136 +338,138 @@ async function updateHeroSection() {
             document.getElementById('hero-title').innerText = details.Title;
             document.getElementById('hero-description').innerText = details.Plot;
             
-            let poster = details.Poster !== "N/A" ? details.Poster : 'https://via.placeholder.com/500x750?text=No+Image';
-            // Try to get a higher res image if possible (OMDB usually sends 300px width)
-            // We can't easily get high res from OMDB free tier, so we stick with what we have.
-            document.getElementById('hero-image').src = poster;
-
-            // Update Watch Trailer button to open modal (since we don't have real trailer links)
-            const watchBtn = document.getElementById('hero-watch-btn');
-            if (watchBtn) {
-                watchBtn.onclick = () => openModal(details.imdbID);
+           
+            const heroSection = document.querySelector('.hero');
+            let overlay = heroSection.querySelector('.hero-bg-overlay');
+            if (!overlay) {
+                overlay = document.createElement('div');
+                overlay.classList.add('hero-bg-overlay');
+                heroSection.prepend(overlay);
             }
+            
+            const highResPoster = details.Poster !== "N/A" ? details.Poster : '';
+            if (highResPoster) {
+                overlay.style.backgroundImage = `url('${highResPoster}')`;
+                document.getElementById('hero-image').src = highResPoster;
+            }
+
+            const watchBtn = document.getElementById('hero-watch-btn');
+            if (watchBtn) watchBtn.onclick = () => openModal(details.imdbID);
         }
     }
 }
 
-/**
- * Initialize the application
- */
 async function initApp() {
-    console.log("Initializing App...");
+    console.log("Initializing Movora Premium...");
 
-    // Search Event Listener
+    // Search Listener
     const searchInput = document.querySelector('.search-bar input');
     if (searchInput) {
         searchInput.addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                handleSearch(this.value);
-            }
+            if (e.key === 'Enter') handleSearch(this.value);
         });
     }
 
-    // Discover Button Listener
+    // Discover Listener
     const discoverBtn = document.getElementById('btn-discover');
-    if (discoverBtn) {
-        discoverBtn.addEventListener('click', discoverRandomMovie);
-    }
+    if (discoverBtn) discoverBtn.addEventListener('click', discoverRandomMovie);
 
-    // Page Specific Logic
+    // Page Logic
     if (document.querySelector('.page-home')) {
         initHomePage();
     } else if (document.querySelector('.page-movies')) {
+        appState.currentType = 'movie';
         initMoviesPage();
     } else if (document.querySelector('.page-tvshows')) {
+        appState.currentType = 'series';
         initTVShowsPage();
     }
 }
 
 async function initHomePage() {
-    // Update Hero Section
     updateHeroSection();
+    
+    renderSkeletons('new-releases', 5);
+    renderSkeletons('trending-movies', 5);
+    renderSkeletons('upcoming-releases', 5);
 
-    // New Releases -> "2024"
-    const newReleases = await fetchMovies('2024');
+    const [newReleases, trending, upcoming] = await Promise.all([
+        fetchMovies('2024'),
+        fetchMovies('Action'),
+        fetchMovies('2025')
+    ]);
+
     renderMovies(newReleases, 'new-releases');
-
-    // Trending -> "Action"
-    const trending = await fetchMovies('Action');
     renderMovies(trending, 'trending-movies');
-
-    // Upcoming -> "2025"
-    const upcoming = await fetchMovies('2025');
     renderMovies(upcoming, 'upcoming-releases');
 
-    // Genre Pills Logic for Home Page
+    // Genre Pills
     const genres = document.querySelectorAll('.genre-pill');
     genres.forEach(pill => {
         pill.addEventListener('click', async () => {
-            // Remove active class from all pills
             genres.forEach(p => p.classList.remove('active'));
-            // Add active class to clicked pill
             pill.classList.add('active');
-
             const genre = pill.dataset.genre;
             
-            // Fetch movies for the selected genre
+            renderSkeletons('new-releases', 5);
             const genreMovies = await fetchMovies(genre);
             
-            // Update "New Releases" section to show genre results
-            // We use 'new-releases' as the main display area
-            const newReleasesSection = document.getElementById('new-releases');
-            const sectionHeader = newReleasesSection.parentElement.querySelector('h2');
-            
-            if (sectionHeader) {
-                sectionHeader.innerText = `${genre} Movies`;
-            }
+            const sectionHeader = document.getElementById('new-releases').parentElement.querySelector('h2');
+            if (sectionHeader) sectionHeader.innerText = `${genre} Movies`;
             
             renderMovies(genreMovies, 'new-releases');
-
-            // Optionally, we could also update other sections or hide them
-            // For now, let's keep it simple and just update the top section
-            // to reflect the user's choice immediately.
         });
     });
 }
 
 async function initMoviesPage() {
-    // Initial load
+    renderSkeletons('movies-grid', 10);
     const movies = await fetchMovies('2024', 'movie');
     renderMovies(movies, 'movies-grid');
+    setupLoadMore('movies-grid', true);
+    appState.currentSearch = '2024';
 
-    // Genre Pills Logic
     const genres = document.querySelectorAll('.genre-pill');
     genres.forEach(pill => {
         pill.addEventListener('click', async () => {
             genres.forEach(p => p.classList.remove('active'));
             pill.classList.add('active');
             const genre = pill.dataset.genre;
+            
+            appState.currentSearch = genre;
+            appState.currentPage = 1;
+            renderSkeletons('movies-grid', 10);
+            
             const results = await fetchMovies(genre, 'movie');
             renderMovies(results, 'movies-grid');
+            setupLoadMore('movies-grid', true);
         });
     });
 }
 
 async function initTVShowsPage() {
-    // Initial load
+    renderSkeletons('tvshows-grid', 10);
     const shows = await fetchMovies('2024', 'series');
     renderMovies(shows, 'tvshows-grid');
+    setupLoadMore('tvshows-grid', true);
+    appState.currentSearch = '2024';
 
-    // Genre Pills Logic
     const genres = document.querySelectorAll('.genre-pill');
     genres.forEach(pill => {
         pill.addEventListener('click', async () => {
             genres.forEach(p => p.classList.remove('active'));
             pill.classList.add('active');
             const genre = pill.dataset.genre;
+            
+            appState.currentSearch = genre;
+            appState.currentPage = 1;
+            renderSkeletons('tvshows-grid', 10);
+            
             const results = await fetchMovies(genre, 'series');
             renderMovies(results, 'tvshows-grid');
+            setupLoadMore('tvshows-grid', true);
         });
     });
 }
 
-
-// Start the app when DOM is loaded
 document.addEventListener('DOMContentLoaded', initApp);
