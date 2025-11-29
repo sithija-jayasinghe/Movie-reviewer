@@ -9,7 +9,8 @@ const appState = {
     watchlist: JSON.parse(localStorage.getItem('movora_watchlist')) || [],
     currentPage: 1,
     currentSearch: '',
-    currentType: 'movie'
+    currentType: 'movie',
+    currentResults: []
 };
 
 // --- UTILS ---
@@ -36,7 +37,6 @@ function showToast(message, type = 'success') {
 
     container.appendChild(toast);
 
-    // Remove after 3 seconds
     setTimeout(() => {
         toast.style.opacity = '0';
         toast.style.transform = 'translateX(100%)';
@@ -64,7 +64,6 @@ function toggleWatchlist(movie) {
 }
 
 function updateWatchlistUI() {
-    // Update buttons in modal if open
     const modalBtn = document.getElementById('modal-watchlist-btn');
     if (modalBtn) {
         const imdbID = modalBtn.dataset.imdbID;
@@ -85,6 +84,33 @@ function updateWatchlistButtonState(btn, inList) {
         btn.style.backgroundColor = 'transparent';
         btn.style.color = 'var(--accent-color)';
     }
+}
+
+// --- SORTING ---
+
+function sortMovies(movies, criteria) {
+    const sorted = [...movies];
+    switch (criteria) {
+        case 'year-desc':
+            return sorted.sort((a, b) => parseInt(b.Year) - parseInt(a.Year));
+        case 'year-asc':
+            return sorted.sort((a, b) => parseInt(a.Year) - parseInt(b.Year));
+        case 'title-asc':
+            return sorted.sort((a, b) => a.Title.localeCompare(b.Title));
+        default:
+            return sorted;
+    }
+}
+
+function setupSortListener(containerId) {
+    const sortSelect = document.getElementById('sort-select');
+    if (!sortSelect) return;
+
+    sortSelect.addEventListener('change', (e) => {
+        const criteria = e.target.value;
+        const sortedMovies = sortMovies(appState.currentResults, criteria);
+        renderMovies(sortedMovies, containerId);
+    });
 }
 
 // --- API ---
@@ -260,7 +286,15 @@ async function handleSearch(query) {
         const sectionHeader = container.parentElement.querySelector('h2');
         if (sectionHeader) sectionHeader.innerText = `Results for: "${query}"`;
         
-        renderMovies(results, targetContainerId);
+        // Store results for sorting
+        appState.currentResults = results;
+        
+        // Check if sort exists and apply current sort
+        const sortSelect = document.getElementById('sort-select');
+        const criteria = sortSelect ? sortSelect.value : 'default';
+        const displayMovies = sortMovies(results, criteria);
+
+        renderMovies(displayMovies, targetContainerId);
         
         // Setup Load More
         setupLoadMore(targetContainerId, results.length > 0);
@@ -298,6 +332,9 @@ function setupLoadMore(containerId, hasResults) {
         
         const moreMovies = await fetchMovies(query, type, appState.currentPage);
         if (moreMovies && moreMovies.length > 0) {
+            
+            appState.currentResults = [...appState.currentResults, ...moreMovies];
+            
             renderMovies(moreMovies, containerId, true);
             btn.innerText = 'Load More';
         } else {
@@ -338,7 +375,7 @@ async function updateHeroSection() {
             document.getElementById('hero-title').innerText = details.Title;
             document.getElementById('hero-description').innerText = details.Plot;
             
-           
+            // Dynamic Background
             const heroSection = document.querySelector('.hero');
             let overlay = heroSection.querySelector('.hero-bg-overlay');
             if (!overlay) {
@@ -384,6 +421,13 @@ async function initApp() {
         appState.currentType = 'series';
         initTVShowsPage();
     }
+
+    // Register Service Worker for PWA
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js')
+            .then(reg => console.log('Service Worker Registered'))
+            .catch(err => console.log('Service Worker Error:', err));
+    }
 }
 
 async function initHomePage() {
@@ -424,10 +468,13 @@ async function initHomePage() {
 
 async function initMoviesPage() {
     renderSkeletons('movies-grid', 10);
+    setupSortListener('movies-grid'); // Setup Sort
+
     const movies = await fetchMovies('2024', 'movie');
+    appState.currentResults = movies; // Store state
     renderMovies(movies, 'movies-grid');
     setupLoadMore('movies-grid', true);
-    appState.currentSearch = '2024';
+    appState.currentSearch = '2024'; // Default for load more
 
     const genres = document.querySelectorAll('.genre-pill');
     genres.forEach(pill => {
@@ -441,7 +488,14 @@ async function initMoviesPage() {
             renderSkeletons('movies-grid', 10);
             
             const results = await fetchMovies(genre, 'movie');
-            renderMovies(results, 'movies-grid');
+            appState.currentResults = results; // Store state
+            
+            // Reset sort to default when changing genre? Or keep it? Let's keep it.
+            const sortSelect = document.getElementById('sort-select');
+            const criteria = sortSelect ? sortSelect.value : 'default';
+            const displayMovies = sortMovies(results, criteria);
+
+            renderMovies(displayMovies, 'movies-grid');
             setupLoadMore('movies-grid', true);
         });
     });
@@ -449,7 +503,10 @@ async function initMoviesPage() {
 
 async function initTVShowsPage() {
     renderSkeletons('tvshows-grid', 10);
+    setupSortListener('tvshows-grid'); // Setup Sort
+
     const shows = await fetchMovies('2024', 'series');
+    appState.currentResults = shows; // Store state
     renderMovies(shows, 'tvshows-grid');
     setupLoadMore('tvshows-grid', true);
     appState.currentSearch = '2024';
@@ -466,7 +523,13 @@ async function initTVShowsPage() {
             renderSkeletons('tvshows-grid', 10);
             
             const results = await fetchMovies(genre, 'series');
-            renderMovies(results, 'tvshows-grid');
+            appState.currentResults = results; // Store state
+
+            const sortSelect = document.getElementById('sort-select');
+            const criteria = sortSelect ? sortSelect.value : 'default';
+            const displayMovies = sortMovies(results, criteria);
+
+            renderMovies(displayMovies, 'tvshows-grid');
             setupLoadMore('tvshows-grid', true);
         });
     });

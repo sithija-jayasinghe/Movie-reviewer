@@ -9,7 +9,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="manifest" href="manifest.json">
 </head>
 
 <body>
@@ -26,7 +27,9 @@
                     <input type="text" placeholder="Search for movies...">
                     <i class="fas fa-search"></i>
                 </div>
-                <button class="btn-discover" id="btn-discover"><i class="fas fa-random"></i> Discover</button>
+                <div class="nav-actions">
+                    <button class="btn-discover" id="btn-discover"><i class="fas fa-random"></i> Discover</button>
+                </div>
             </nav>
         </header>
 
@@ -47,6 +50,14 @@
                 <section class="movie-section">
                     <div class="section-header">
                         <h2>Explore Movies</h2>
+                        <div class="sort-container">
+                            <select id="sort-select" class="sort-select">
+                                <option value="default">Sort by: Default</option>
+                                <option value="year-desc">Year (Newest)</option>
+                                <option value="year-asc">Year (Oldest)</option>
+                                <option value="title-asc">Title (A-Z)</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="movie-list-grid" id="movies-grid">
                         <!-- Content populated by JS -->
@@ -57,14 +68,6 @@
 
         <footer>
             <div class="footer-content">
-                <div class="footer-links">
-                    <a href="#">About</a>
-                    <a href="#">Help</a>
-                    <a href="#">Privacy Policy</a>
-                    <a href="#">Terms of Use</a>
-                    <a href="#">Cookies Settings</a>
-                    <a href="#">Accessibility</a>
-                </div>
                 <div class="social-icons">
                     <i class="fab fa-facebook"></i>
                     <i class="fab fa-twitter"></i>

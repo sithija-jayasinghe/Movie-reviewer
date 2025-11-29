@@ -4,19 +4,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SITME - TV Shows</title>
+    <title>Movora - TV Shows</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="manifest" href="manifest.json">
 </head>
 
 <body>
     <div id="app" class="page-tvshows">
         <header>
             <nav class="navbar">
-                <div class="logo">SITME</div>
+                <div class="logo">Movora</div>
                 <ul class="nav-links">
                     <li><a href="index.html" class="active">Home</a></li>
                     <li><a href="movies.html">Movies</a></li>
@@ -26,7 +27,9 @@
                     <input type="text" placeholder="Search for movies...">
                     <i class="fas fa-search"></i>
                 </div>
-                <button class="btn-discover" id="btn-discover"><i class="fas fa-random"></i> Discover</button>
+                <div class="nav-actions">
+                    <button class="btn-discover" id="btn-discover"><i class="fas fa-random"></i> Discover</button>
+                </div>
             </nav>
         </header>
 
@@ -47,6 +50,14 @@
                 <section class="movie-section">
                     <div class="section-header">
                         <h2>Explore TV Shows</h2>
+                        <div class="sort-container">
+                            <select id="sort-select" class="sort-select">
+                                <option value="default">Sort by: Default</option>
+                                <option value="year-desc">Year (Newest)</option>
+                                <option value="year-asc">Year (Oldest)</option>
+                                <option value="title-asc">Title (A-Z)</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="movie-list-grid" id="tvshows-grid">
                         <!-- Content populated by JS -->
@@ -57,21 +68,13 @@
 
         <footer>
             <div class="footer-content">
-                <div class="footer-links">
-                    <a href="#">About</a>
-                    <a href="#">Help</a>
-                    <a href="#">Privacy Policy</a>
-                    <a href="#">Terms of Use</a>
-                    <a href="#">Cookies Settings</a>
-                    <a href="#">Accessibility</a>
-                </div>
                 <div class="social-icons">
                     <i class="fab fa-facebook"></i>
                     <i class="fab fa-twitter"></i>
                     <i class="fab fa-instagram"></i>
                     <i class="fab fa-youtube"></i>
                 </div>
-                <p class="copyright">&copy; 2024 SITME. All rights reserved.</p>
+                <p class="copyright">&copy; 2024 Movora. All rights reserved.</p>
             </div>
         </footer>
     </div>
